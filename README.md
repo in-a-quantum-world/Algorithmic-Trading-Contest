@@ -1,12 +1,12 @@
 # Algorithmic-Trading-Contest
 My coded solution to the Algorithmic Trading Contest at Imperial College London. The aim is to formulate a high-frequency trading strategy to trade 4 assets, maximising the Sharpe ratio and making use of market making and arbitrage strategies, such that the PnL can be quickly evaluated (thus success of algorithm) in under a minute.
 
-May I also mention that we came third on the leaderboard - although there was room for improvement (see end of README)
+We came third place!
 ---
 
 ## Strategy Overview
 
-The strategy follows a hybrid architecture that balances the steady returns of liquidity provision with the opportunistic gains of trend-following and mean-reversion.
+The strategy is hybrid: it balances the steady returns of liquidity provision with opportunistic gains of trend-following and mean-reversion.
 
 ### 1. Market-Making 
 We utilised an **Avellaneda-Stoikov** inspired framework to provide two-sided liquidity.
@@ -28,21 +28,19 @@ Capital is allocated across four assets by solving a **Mean-Variance Proxy** to 
 
 ## Feature Engineering Pipeline
 
+These were some of the high frequency features we used:
+Microstructure: mid price, microprice, spread
+Depth and flow: level depth sums, queue imbalance, using incoming trading signs and sizes
+Volatility: volume weighted aggregates and short term realised volatility.
+Temporal features: VWAP, rolling means, horizon features
 We transformed raw Limit Order Book (LOB) snapshots into high-frequency features (Top-5 Levels):
-
-| Feature Category | Metrics |
-| :--- | :--- |
-| **Micro-Structure** | Mid-price, Microprice, Spread, multi-level imbalance. |
-| **Depth & Flow** | Level depth sums, queue imbalances, order-flow deltas (incoming trade signs/sizes). |
-| **Volatility** | Short-term realized volatility and volume-weighted aggregates. |
-| **Temporal** | Horizon features ($t, t-1, ...$), VWAP, and rolling means. |
 
 
 ---
 
 ## Algorithmic Implementation
 
-### Event Loop Logic
+### Event Loop 
 1.  **Data Ingestion:** Update internal `OrderBook` snapshots and compute micro-features.
 2.  **Inference:** Feed features into LightGBM/LSTM to produce $E[R]$ and $\sigma_{est}$.
 3.  **Quote Generation:** * Calculate `reservation = mid + drift + inventory_penalty + signal_skew`.
